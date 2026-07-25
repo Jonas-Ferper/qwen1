@@ -1,0 +1,357 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 30px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.year-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.year-selector button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.year-selector button:hover {
+    background: #5568d3;
+    transform: scale(1.05);
+}
+
+.year-selector input {
+    width: 100px;
+    padding: 12px;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.year-selector input:focus {
+    border-color: #667eea;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+}
+
+.legend-color.solemnity {
+    background: #e74c3c;
+}
+
+.legend-color.feast {
+    background: #f39c12;
+}
+
+.legend-color.memorial {
+    background: #3498db;
+}
+
+.legend-color.optional {
+    background: #95a5a6;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.month-header {
+    grid-column: span 7;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.month-header:first-child {
+    margin-top: 0;
+}
+
+.weekday-header {
+    background: #f8f9fa;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.day-cell {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    min-height: 100px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.day-cell:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.day-cell.empty {
+    background: #fafafa;
+    cursor: default;
+}
+
+.day-cell.empty:hover {
+    box-shadow: none;
+    transform: none;
+}
+
+.day-number {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.day-cell.has-celebrations .day-number {
+    color: #667eea;
+}
+
+.celebration-list {
+    font-size: 0.75rem;
+    line-height: 1.3;
+}
+
+.celebration-item {
+    padding: 2px 4px;
+    margin: 2px 0;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.celebration-item.solemnity {
+    background: #ffeaea;
+    color: #c0392b;
+    border-left: 3px solid #e74c3c;
+}
+
+.celebration-item.feast {
+    background: #fef5e7;
+    color: #d68910;
+    border-left: 3px solid #f39c12;
+}
+
+.celebration-item.memorial {
+    background: #e8f4fd;
+    color: #2980b9;
+    border-left: 3px solid #3498db;
+}
+
+.celebration-item.optional {
+    background: #f2f3f4;
+    color: #7f8c8d;
+    border-left: 3px solid #95a5a6;
+}
+
+.mobile-date {
+    font-weight: bold;
+    background: #fdebd0 !important;
+    color: #d35400 !important;
+    border-left: 3px solid #e67e22 !important;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-btn {
+    float: right;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+#modalDate {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+#modalCelebrations {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.modal-celebration {
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.modal-celebration.solemnity {
+    background: #ffeaea;
+    border-left: 4px solid #e74c3c;
+}
+
+.modal-celebration.feast {
+    background: #fef5e7;
+    border-left: 4px solid #f39c12;
+}
+
+.modal-celebration.memorial {
+    background: #e8f4fd;
+    border-left: 4px solid #3498db;
+}
+
+.modal-celebration.optional {
+    background: #f2f3f4;
+    border-left: 4px solid #95a5a6;
+}
+
+.modal-celebration h3 {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.modal-celebration p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .calendar-grid {
+        gap: 5px;
+    }
+
+    .day-cell {
+        min-height: 70px;
+        padding: 5px;
+    }
+
+    .celebration-list {
+        font-size: 0.65rem;
+    }
+
+    .legend {
+        gap: 15px;
+    }
+
+    .legend-item {
+        font-size: 0.8rem;
+    }
+}

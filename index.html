@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário Religioso Católico - Brasil</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Calendário Religioso Católico</h1>
+            <p class="subtitle">Datas comemorativas do Santoral da CNBB - Brasil</p>
+            <div class="year-selector">
+                <button id="prevYear" aria-label="Ano anterior">◀</button>
+                <input type="number" id="yearInput" min="1900" max="2100" value="2025">
+                <button id="nextYear" aria-label="Próximo ano">▶</button>
+            </div>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color solemnity"></span>
+                <span>Solenidade</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color feast"></span>
+                <span>Festa</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color memorial"></span>
+                <span>Memória Obrigatória</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color optional"></span>
+                <span>Memória Facultativa</span>
+            </div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- Calendar will be generated here -->
+        </div>
+
+        <div class="modal" id="dayModal">
+            <div class="modal-content">
+                <span class="close-btn" id="closeModal">&times;</span>
+                <h2 id="modalDate"></h2>
+                <div id="modalCelebrations"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="santoral.js"></script>
+    <script src="mobile-dates.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
