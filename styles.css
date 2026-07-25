@@ -101,67 +101,11 @@ body {
     top: 20px;
 }
 
-.search-section {
+.liturgical-info-section {
     margin-bottom: 25px;
 }
 
-.search-section label {
-    display: block;
-    font-family: 'Cinzel', serif;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: var(--text-color);
-}
-
-#search-saint {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-family: 'EB Garamond', serif;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-
-#search-saint:focus {
-    outline: none;
-    border-color: var(--gold);
-}
-
-.search-results {
-    margin-top: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-    background: var(--bg-color);
-    border-radius: 8px;
-    display: none;
-}
-
-.search-results.active {
-    display: block;
-}
-
-.search-result-item {
-    padding: 10px;
-    border-bottom: 1px solid #e0e0e0;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.search-result-item:hover {
-    background: #f0e6d0;
-}
-
-.search-result-item:last-child {
-    border-bottom: none;
-}
-
-.filters-section {
-    margin-bottom: 25px;
-}
-
-.filters-section h3 {
+.liturgical-info-section h3 {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
     font-weight: 600;
@@ -171,26 +115,40 @@ body {
     padding-bottom: 8px;
 }
 
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.filter-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+#liturgical-info-content {
     font-size: 0.95rem;
     font-family: 'Crimson Text', serif;
 }
 
-.filter-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--gold);
-    cursor: pointer;
+.liturgical-info-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.liturgical-info-item:last-child {
+    border-bottom: none;
+}
+
+.liturgical-info-label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.liturgical-info-value {
+    color: #666;
+    text-align: right;
+}
+
+.liturgical-color-indicator {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-left: 8px;
+    vertical-align: middle;
 }
 
 .legend-section {

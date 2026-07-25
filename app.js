@@ -20,10 +20,8 @@ class CalendarioReligioso {
         this.panelDate = document.getElementById('panel-date');
         this.panelWeekday = document.getElementById('panel-weekday');
         this.panelContent = document.getElementById('panel-content');
-        this.searchInput = document.getElementById('search-saint');
-        this.searchResults = document.getElementById('search-results');
         this.mobileDatesList = document.getElementById('mobile-dates-list');
-        this.filterCheckboxes = document.querySelectorAll('.filter-checkbox input');
+        this.liturgicalInfoContent = document.getElementById('liturgical-info-content');
         
         this.init();
     }
@@ -34,8 +32,7 @@ class CalendarioReligioso {
         this.setupEventListeners();
         this.renderCalendar();
         this.updateMobileDatesList();
-        this.setupSearch();
-        this.setupFilters();
+        this.updateLiturgicalInfo();
     }
 
     populateYearSelect() {
@@ -497,110 +494,53 @@ class CalendarioReligioso {
         });
     }
 
-    setupSearch() {
-        let searchTimeout;
+    /**
+     * Atualiza as informações litúrgicas na sidebar
+     */
+    updateLiturgicalInfo() {
+        const today = new Date(this.currentYear, this.currentMonth, 1);
+        const liturgicalData = window.MobileDates?.getLiturgicalYearInfo(today) || {};
         
-        this.searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim().toLowerCase();
-            
-            if (query.length < 2) {
-                this.searchResults.classList.remove('active');
-                this.searchResults.innerHTML = '';
-                return;
-            }
-            
-            searchTimeout = setTimeout(() => {
-                this.performSearch(query);
-            }, 300);
-        });
+        if (!this.liturgicalInfoContent) return;
         
-        // Fecha resultados ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!this.searchInput.contains(e.target) && !this.searchResults.contains(e.target)) {
-                this.searchResults.classList.remove('active');
-            }
-        });
-    }
-
-    performSearch(query) {
-        const results = [];
-        const allCelebrations = window.SANTORAL?.getAllCelebrations() || [];
-        
-        // Adiciona datas móveis ao search
-        const mobileDates = window.MobileDates?.getDatasMoveis(this.currentYear) || {};
-        const mobileNames = {
-            quartaCinzas: 'Quarta-feira de Cinzas',
-            domingoRamos: 'Domingo de Ramos',
-            pascoa: 'Páscoa da Ressurreição',
-            ascensao: 'Ascensão do Senhor',
-            pentecostes: 'Pentecostes',
-            trindade: 'Santíssima Trindade',
-            corpusChristi: 'Corpus Christi',
-            sagradoCoracao: 'Sagrado Coração de Jesus',
-            cristoRei: 'Cristo Rei'
+        const colorMap = {
+            'Branco': '#FFFFFF',
+            'Verde': '#047857',
+            'Roxo': '#6D28D9',
+            'Vermelho': '#B91C1C',
+            'Rosa': '#EC4899',
+            'Preto': '#000000'
         };
         
-        Object.entries(mobileNames).forEach(([key, name]) => {
-            if (name.toLowerCase().includes(query) && mobileDates[key]) {
-                const date = new Date(mobileDates[key]);
-                results.push({
-                    name: name,
-                    type: 'mobile',
-                    date: date,
-                    isMobile: true
-                });
-            }
-        });
-        
-        // Busca no santoral
-        allCelebrations.forEach(celebration => {
-            if (celebration.name.toLowerCase().includes(query)) {
-                results.push({
-                    ...celebration,
-                    date: new Date(this.currentYear, celebration.month - 1, celebration.day)
-                });
-            }
-        });
-        
-        // Limita a 10 resultados
-        const limitedResults = results.slice(0, 10);
-        
-        if (limitedResults.length === 0) {
-            this.searchResults.innerHTML = '<div class="search-result-item">Nenhum resultado encontrado</div>';
-        } else {
-            this.searchResults.innerHTML = '';
-            limitedResults.forEach(result => {
-                const item = document.createElement('div');
-                item.className = 'search-result-item';
-                const dateStr = result.date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
-                item.innerHTML = `<strong>${result.name}</strong><br><small>${dateStr}</small>`;
-                item.addEventListener('click', () => {
-                    this.currentYear = result.date.getFullYear();
-                    this.currentMonth = result.date.getMonth();
-                    this.yearSelect.value = this.currentYear;
-                    this.monthSelect.value = this.currentMonth;
-                    this.renderCalendar();
-                    this.searchResults.classList.remove('active');
-                    this.searchInput.value = '';
-                    
-                    // Mostra detalhes
-                    const celebrations = this.getCelebrationsForDate(result.date.getMonth() + 1, result.date.getDate());
-                    this.showDayDetails(result.date.getMonth() + 1, result.date.getDate(), celebrations);
-                });
-                this.searchResults.appendChild(item);
-            });
-        }
-        
-        this.searchResults.classList.add('active');
-    }
-
-    setupFilters() {
-        this.filterCheckboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                this.renderCalendar();
-            });
-        });
+        this.liturgicalInfoContent.innerHTML = `
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Ano Litúrgico:</span>
+                <span class="liturgical-info-value">${liturgicalData.anoLiturgico || '-'}</span>
+            </div>
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Ciclo Dominical:</span>
+                <span class="liturgical-info-value">${liturgicalData.cicloDominical || '-'}</span>
+            </div>
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Ciclo Ferial:</span>
+                <span class="liturgical-info-value">${liturgicalData.cicloFerial || '-'}</span>
+            </div>
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Tempo Litúrgico:</span>
+                <span class="liturgical-info-value">${liturgicalData.tempoLiturgico || '-'}</span>
+            </div>
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Cor Litúrgica:</span>
+                <span class="liturgical-info-value">
+                    ${liturgicalData.corLiturgica || '-'}
+                    ${liturgicalData.corLiturgica ? `<span class="liturgical-color-indicator" style="background-color: ${colorMap[liturgicalData.corLiturgica] || '#ccc'}"></span>` : ''}
+                </span>
+            </div>
+            <div class="liturgical-info-item">
+                <span class="liturgical-info-label">Semana:</span>
+                <span class="liturgical-info-value">${liturgicalData.semana || '-'}</span>
+            </div>
+        `;
     }
 }
 
