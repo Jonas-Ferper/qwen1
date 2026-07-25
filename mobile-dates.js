@@ -1,5 +1,6 @@
 /**
  * Cálculo de Datas Móveis da Páscoa e Celebrações Relacionadas
+ * + Cálculo do Tempo Litúrgico
  * 
  * Algoritmo baseado no cálculo da Páscoa (algoritmo de Gauss)
  * para determinar as datas móveis do calendário litúrgico católico.
@@ -225,6 +226,193 @@ const MobileDates = {
     isDataMovil(year, month, day) {
         const celebracoes = this.getCelebracoesMoveis(year, month, day);
         return celebracoes.length > 0;
+    },
+
+    /**
+     * Calcula o tempo litúrgico para uma determinada data
+     * @param {number} year - Ano
+     * @param {number} month - Mês (1-12)
+     * @param {number} day - Dia (1-31)
+     * @returns {Object} Informações do tempo litúrgico
+     */
+    calcularTempoLiturgico(year, month, day) {
+        const date = new Date(year, month - 1, day);
+        const datasMoveis = this.calcularDatasMoveis(year);
+        
+        // Determina o ano litúrgico (começa no Advento do ano anterior)
+        const anoLiturgico = this.getAnoLiturgico(year, month, day);
+        
+        // Determina o ciclo dominical (A, B, C)
+        const cicloDominical = this.getCicloDominical(year);
+        
+        // Determina o ciclo das leituras feriais (I, II)
+        const cicloFerial = ((year % 2) === 0) ? 'II' : 'I';
+        
+        // Determina o tempo litúrgico e a cor
+        const tempoInfo = this.getTempoLiturgico(date, datasMoveis);
+        
+        // Calcula a semana do tempo comum ou quaresma
+        const semana = this.getSemanaLiturgica(date, datasMoveis);
+        
+        return {
+            anoLiturgico,
+            cicloDominical,
+            cicloFerial,
+            tempo: tempoInfo.tempo,
+            cor: tempoInfo.cor,
+            semana
+        };
+    },
+
+    /**
+     * Determina o ano litúrgico (que começa no Advento)
+     */
+    getAnoLiturgico(year, month, day) {
+        // O ano litúrgico começa no 1º Domingo do Advento (final de novembro/dezembro)
+        // Se estamos em janeiro, fevereiro ou antes do Advento, pertence ao ano litúrgico anterior
+        const primeiroDomingoAdvento = this.getPrimeiroDomingoAdvento(year);
+        const dataAtual = new Date(year, month - 1, day);
+        
+        if (dataAtual >= primeiroDomingoAdvento) {
+            return `${year}–${year + 1}`;
+        } else {
+            const adventoAnterior = this.getPrimeiroDomingoAdvento(year - 1);
+            if (dataAtual >= adventoAnterior) {
+                return `${year - 1}–${year}`;
+            } else {
+                return `${year - 1}–${year}`;
+            }
+        }
+    },
+
+    /**
+     * Obtém o primeiro domingo do Advento de um ano
+     */
+    getPrimeiroDomingoAdvento(year) {
+        // O 1º Domingo do Advento é o domingo mais próximo de 30 de novembro
+        const nov30 = new Date(year, 10, 30);
+        const diaSemana = nov30.getDay();
+        const diasParaDomingo = (7 - diaSemana) % 7;
+        const primeiroDomingo = new Date(nov30);
+        primeiroDomingo.setDate(nov30.getDate() + diasParaDomingo);
+        return primeiroDomingo;
+    },
+
+    /**
+     * Obtém o ciclo dominical (A, B, C) baseado no ano
+     * Ciclo A: anos divisíveis por 3
+     * Ciclo B: anos com resto 1 na divisão por 3
+     * Ciclo C: anos com resto 2 na divisão por 3
+     */
+    getCicloDominical(year) {
+        const resto = year % 3;
+        if (resto === 0) return 'A';
+        if (resto === 1) return 'B';
+        return 'C';
+    },
+
+    /**
+     * Determina o tempo litúrgico e cor para uma data
+     */
+    getTempoLiturgico(date, datasMoveis) {
+        const diaSemana = date.getDay();
+        const mes = date.getMonth() + 1;
+        const dia = date.getDate();
+        
+        // Verifica se é Natal ou época do Natal
+        if (mes === 12 && dia >= 24) return { tempo: 'Natal', cor: 'Branco/Dourado' };
+        if (mes === 1 && dia <= 12) return { tempo: 'Natal', cor: 'Branco/Dourado' };
+        
+        // Verifica se é Páscoa
+        if (date.getTime() === datasMoveis.pascoa.getTime()) {
+            return { tempo: 'Páscoa', cor: 'Branco/Dourado' };
+        }
+        
+        // Tríduo Pascal
+        if (date.getTime() >= datasMoveis.quintaFeiraSanta.getTime() && 
+            date.getTime() <= datasMoveis.sabadoSanto.getTime()) {
+            return { tempo: 'Tríduo Pascal', cor: this.getCorTriduo(date, datasMoveis) };
+        }
+        
+        // Quaresma
+        if (date >= datasMoveis.quartaCinzas && date < datasMoveis.domingoRamos) {
+            return { tempo: 'Quaresma', cor: 'Roxo' };
+        }
+        
+        // Domingo de Ramos
+        if (date.getTime() === datasMoveis.domingoRamos.getTime()) {
+            return { tempo: 'Paixão do Senhor', cor: 'Vermelho' };
+        }
+        
+        // Tempo Pascal (da Páscoa até Pentecostes)
+        if (date > datasMoveis.pascoa && date <= datasMoveis.pentecostes) {
+            return { tempo: 'Páscoa', cor: 'Branco/Dourado' };
+        }
+        
+        // Pentecostes
+        if (date.getTime() === datasMoveis.pentecostes.getTime()) {
+            return { tempo: 'Pentecostes', cor: 'Vermelho' };
+        }
+        
+        // Verifica Advento (4 domingos antes do Natal)
+        const advento = this.getPrimeiroDomingoAdvento(date.getFullYear());
+        if (date >= advento) {
+            return { tempo: 'Advento', cor: 'Roxo' };
+        }
+        
+        // Padrão: Tempo Comum
+        return { tempo: 'Tempo Comum', cor: 'Verde' };
+    },
+
+    /**
+     * Obtém a cor específica para cada dia do Tríduo Pascal
+     */
+    getCorTriduo(date, datasMoveis) {
+        if (date.getTime() === datasMoveis.quintaFeiraSanta.getTime()) {
+            return 'Branco';
+        }
+        if (date.getTime() === datasMoveis.sextaFeiraSanta.getTime()) {
+            return 'Vermelho';
+        }
+        return 'Sem cor (vigília)';
+    },
+
+    /**
+     * Calcula a semana litúrgica atual
+     */
+    getSemanaLiturgica(date, datasMoveis) {
+        const diaSemana = date.getDay();
+        
+        // Durante a Quaresma
+        if (date >= datasMoveis.quartaCinzas && date < datasMoveis.pascoa) {
+            const semanasDesdeCinzas = Math.floor((date - datasMoveis.quartaCinzas) / (7 * 24 * 60 * 60 * 1000));
+            return `${semanasDesdeCinzas + 1}ª Semana da Quaresma`;
+        }
+        
+        // Tempo Pascal
+        if (date > datasMoveis.pascoa && date <= datasMoveis.pentecostes) {
+            const semanasDesdePascoa = Math.floor((date - datasMoveis.pascoa) / (7 * 24 * 60 * 60 * 1000));
+            if (semanasDesdePascoa === 0) return 'Oitava da Páscoa';
+            return `${semanasDesdePascoa}ª Semana da Páscoa`;
+        }
+        
+        // Tempo Comum
+        // Primeira parte: antes da Quaresma
+        const natal = new Date(date.getFullYear(), 11, 25);
+        const batismoSenhor = new Date(natal);
+        batismoSenhor.setDate(natal.getDate() + 14 - natal.getDay() + 7); // Primeiro domingo após 6 de janeiro
+        
+        if (date < datasMoveis.quartaCinzas) {
+            return 'Tempo Comum (início)';
+        }
+        
+        // Segunda parte: após Pentecostes até Advento
+        if (date > datasMoveis.pentecostes) {
+            const semanasDesdePentecostes = Math.floor((date - datasMoveis.pentecostes) / (7 * 24 * 60 * 60 * 1000));
+            return `${Math.min(semanasDesdePentecostes + 1, 34)}ª Semana do Tempo Comum`;
+        }
+        
+        return 'Tempo Comum';
     }
 };
 

@@ -365,8 +365,82 @@ class CalendarioReligioso {
             });
         }
         
+        // Adiciona informações de tempo litúrgico
+        this.addTempoLiturgicoPanel(month, day);
+        
         // Abre o painel (responsivo)
         this.detailsPanel.classList.add('active');
+    }
+
+    /**
+     * Retorna um indicador visual colorido para a cor litúrgica
+     */
+    getCorColorIndicator(cor) {
+        const colors = {
+            'Branco': '#FFFFFF',
+            'Branco/Dourado': '#FFD700',
+            'Vermelho': '#DC2626',
+            'Verde': '#047857',
+            'Roxo': '#6D28D9',
+            'Preto': '#1F2937',
+            'Rosa': '#EC4899'
+        };
+        
+        let colorHex = '#047857'; // Verde padrão
+        for (const [name, hex] of Object.entries(colors)) {
+            if (cor && cor.includes(name)) {
+                colorHex = hex;
+                break;
+            }
+        }
+        
+        return `<span style="display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: ${colorHex}; border: 1px solid #ccc;"></span>`;
+    }
+
+    /**
+     * Adiciona informações de tempo litúrgico ao painel de detalhes
+     */
+    addTempoLiturgicoPanel(month, day) {
+        const tempoLiturgico = window.MobileDates?.calcularTempoLiturgico(this.currentYear, month, day) || {};
+        
+        if (Object.keys(tempoLiturgico).length === 0) return;
+        
+        const tempoDiv = document.createElement('div');
+        tempoDiv.className = 'celebration-detail optional';
+        tempoDiv.style.marginTop = '20px';
+        tempoDiv.innerHTML = `
+            <h4 style="font-family: 'Cinzel', serif; font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid var(--gold); padding-bottom: 8px;">Informações Litúrgicas</h4>
+            <div class="celebration-info">
+                <div class="info-row">
+                    <strong>Ano Litúrgico:</strong>
+                    <span>${tempoLiturgico.anoLiturgico || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Ciclo Dominical:</strong>
+                    <span>${tempoLiturgico.cicloDominical || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Ciclo Ferial:</strong>
+                    <span>${tempoLiturgico.cicloFerial || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Tempo Litúrgico:</strong>
+                    <span>${tempoLiturgico.tempo || '-'}</span>
+                </div>
+                <div class="info-row">
+                    <strong>Cor Litúrgica:</strong>
+                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                        ${this.getCorColorIndicator(tempoLiturgico.cor)}
+                        ${tempoLiturgico.cor || '-'}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <strong>Semana:</strong>
+                    <span>${tempoLiturgico.semana || '-'}</span>
+                </div>
+            </div>
+        `;
+        this.panelContent.appendChild(tempoDiv);
     }
 
     closeDetailsPanel() {
