@@ -362,3 +362,36 @@ window.SANTORAL = {
     SANTOS_BRASILEIROS,
     DATAS_BRASIL
 };
+
+/**
+ * Obtém todas as celebrações do ano
+ * @returns {Array} Array de todas as celebrações com mês e dia
+ */
+function getAllCelebrations() {
+    const santoral = getSantoralCompleto();
+    const allCelebrations = [];
+
+    for (let mes = 1; mes <= 12; mes++) {
+        if (santoral[mes]) {
+            santoral[mes].forEach(celebration => {
+                allCelebrations.push({
+                    ...celebration,
+                    month: mes,
+                    day: celebration.day
+                });
+            });
+        }
+    }
+
+    return allCelebrations;
+}
+
+// Atualiza o objeto exportado
+window.SANTORAL = {
+    getSantoralCompleto,
+    getCelebracoes,
+    getAllCelebrations,
+    SANTORAL_CNBB,
+    SANTOS_BRASILEIROS,
+    DATAS_BRASIL
+};

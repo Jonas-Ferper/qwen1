@@ -230,3 +230,27 @@ const MobileDates = {
 
 // Exporta para uso global
 window.MobileDates = MobileDates;
+
+/**
+ * Obtém todas as datas móveis de um ano
+ * @param {number} year - Ano
+ * @returns {Object} Objeto com todas as datas móveis
+ */
+function getDatasMoveis(year) {
+    const pascoa = calcularPascoa(year);
+    
+    return {
+        quartaCinzas: new Date(year, 2, pascoa.day - 46),
+        domingoRamos: new Date(year, 2, pascoa.day - 7),
+        pascoa: new Date(year, 2, pascoa.day),
+        ascensao: new Date(year, 3, pascoa.day + 39),
+        pentecostes: new Date(year, 3, pascoa.day + 49),
+        trindade: new Date(year, 3, pascoa.day + 56),
+        corpusChristi: new Date(year, 3, pascoa.day + 60),
+        sagradoCoracao: new Date(year, 3, pascoa.day + 68),
+        cristoRei: new Date(year, 9, 1 + (7 - new Date(year, 9, 1).getDay()) % 7) // Último domingo de novembro
+    };
+}
+
+// Adiciona ao objeto exportado
+window.MobileDates.getDatasMoveis = getDatasMoveis;
